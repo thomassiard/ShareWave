@@ -3,6 +3,7 @@
 [Fakultet informatike u Puli](https://fipu.unipu.hr)\
 Kolegij: [Raspodijeljeni sustavi](https://fiputreca.notion.site/Raspodijeljeni-sustavi-544564d5cc9e48b3a38d4143216e5dd6)\
 Nositelj kolegija: [doc.dr.sc. Nikola Tanković](https://www.notion.so/fiputreca/Kontakt-stranica-875574d1b92248b1a8e90dae52cd29a9)
+Student: Thomas Siard
 
 ## **Opis**
 

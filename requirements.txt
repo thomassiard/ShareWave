@@ -1,0 +1,4 @@
+Flasks
+requests
+flask_testing
+werkzeug
