@@ -1,4 +1,11 @@
-Flasks
+Flask
+SQLAlchemy
+psycopg2-binary
+pytest
+Flask-Testing
+Flask-Migrate
+Flask-JWT-Extended
+Flask-Bcrypt
+python-dotenv
 requests
-flask_testing
-werkzeug
+marshmallow

@@ -1,53 +1,32 @@
 from flask import Flask
-from models import File, User  # Importajte potrebne modele
+from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
+import os
 
-def create_app():
-    app = Flask(__name__)
+# Inicijaliziraj Flask aplikaciju
+app = Flask(__name__)
 
-    # Pretvaranje podataka o datoteci u JSON format
-    def file_to_json(file):
-        return {
-            'file_id': file.file_id,
-            'filename': file.filename,
-            'size': file.size,
-            'upload_date': file.upload_date
-        }
+# Učitaj konfiguraciju iz okoline ili koristi zadane vrijednosti
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://user:password@localhost:5432/sharewave')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your_jwt_secret_key')
 
-    # Simulacija baze podataka
-    files = []
-    users = []
+# Inicijaliziraj ekstenzije
+db = SQLAlchemy(app)
+jwt = JWTManager(app)
+migrate = Migrate(app, db)
 
-    @app.route('/upload', methods=['POST'])
-    def upload_file():
-        # Pretvaranje podataka dobivenih iz zahtjeva u objekt datoteke
-        file_id = len(files) + 1
-        filename = request.form['filename']
-        size = len(request.files['file'].read())
-        upload_date = 'Today'  # Trebate implementirati logiku za dobivanje datuma
-        new_file = File(file_id, filename, size, upload_date)
+# Učitaj modele
+from . import models
 
-        # Dodavanje datoteke u listu datoteka
-        files.append(new_file)
+# Učitaj rute
+from . import auth_service, file_service, main
 
-        # Vraćanje odgovora o uspješnom uploadu datoteke
-        return jsonify({'message': 'File uploaded successfully', 'file': file_to_json(new_file)}), 200
+# Stvori bazu podataka ako ne postoji
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
-    @app.route('/search', methods=['GET'])
-    def search_file():
-        query = request.args.get('query')
-        # Implementirajte logiku pretraživanja datoteka na temelju upita
-
-        search_results = [file_to_json(file) for file in files if query.lower() in file.filename.lower()]
-        return jsonify({'message': 'Search results', 'results': search_results}), 200
-
-    @app.route('/download/<int:file_id>', methods=['GET'])
-    def download_file(file_id):
-        # Pronađite datoteku po ID-u
-        file = next((file for file in files if file.file_id == file_id), None)
-        if file:
-            # Implementirajte logiku za preuzimanje datoteke
-            return jsonify({'message': 'File downloaded successfully', 'file': file_to_json(file)}), 200
-        else:
-            return jsonify({'message': 'File not found'}), 404
-
-    return app
+if __name__ == '__main__':
+    app.run(debug=True)
