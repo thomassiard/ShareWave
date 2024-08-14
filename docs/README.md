@@ -14,16 +14,3 @@ Jednostavno korisničko sučelje olakšava upload datoteka, a sigurnosni mehaniz
 Ovaj projekt istražuje ključne koncepte raspodijeljenih sustava, poput horizontalnog skaliranja i decentralizirane pohrane podataka. ShareWave pruža praktično rješenje za dijeljenje resursa u radnim skupinama, obrazovnim institucijama ili istraživačkim timovima.
 
 S jednostavnim iskustvom i inovativnim pristupom dijeljenju datoteka, ShareWave čini tehnologiju raspodijeljenih sustava dostupnom svima, pridonoseći efikasnijem i pristupačnijem dijeljenju resursa.
-
-### **Postavljanje**
-
-1. Klonirajte repozitorij: `git clone <repo-url>`
-2. Instalirajte ovisnosti: `pip install -r requirements.txt`
-3. Pokrenite aplikaciju: `uvicorn server.main:app --reload`
-
-
-#### **Korištenje**
-
-- **Upload datoteke:** `POST /files/`
-- **Pretraživanje datoteka:** `GET /files/`
-- **Preuzimanje datoteke:** `GET /files/{file_id}`

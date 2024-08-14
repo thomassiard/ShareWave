@@ -1,11 +1,3 @@
-Flask
-SQLAlchemy
-psycopg2-binary
-pytest
-Flask-Testing
-Flask-Migrate
-Flask-JWT-Extended
-Flask-Bcrypt
-python-dotenv
-requests
-marshmallow
+# Example dependencies (add or modify based on your needs)
+pytest==6.2.4
+requests==2.25.1

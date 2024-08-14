@@ -1,10 +1,7 @@
+venv/
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-env/
-.venv/
-instance/
-.webassets-cache
-*.sqlite3
-*.db
+*.log
+.DS_Store
+.env
