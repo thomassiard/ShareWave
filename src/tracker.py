@@ -1,24 +1,42 @@
-# src/tracker.py
-
 import socket
 import threading
+import logging
+from protocol import Protocol
 
-def handle_client(client_socket):
-    # Ovdje dodajte kod za rukovanje klijentima
-    client_socket.send("Tracker is running".encode())
-    client_socket.close()
+# Postavljanje osnovnih postavki za logiranje
+logging.basicConfig(filename='src/logs/tracker.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def start_tracker(host='127.0.0.1', port=8888):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((host, port))
-    server.listen(5)
-    print(f"Tracker is running on {host}:{port}")
+class Tracker:
+    def __init__(self, host='127.0.0.1', port=8888):
+        self.host = host
+        self.port = port
+        self.protocol = Protocol()
+        self.peers = {}  # Skladište za praćenje registriranih peer-ova
 
-    while True:
-        client_socket, addr = server.accept()
-        print(f"Accepted connection from {addr}")
-        client_handler = threading.Thread(target=handle_client, args=(client_socket,))
-        client_handler.start()
+    def start(self):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((self.host, self.port))
+        server.listen(5)
+        logging.info(f"Tracker is running on {self.host}:{self.port}")
+
+        while True:
+            client_socket, addr = server.accept()
+            logging.info(f"Accepted connection from {addr}")
+            client_handler = threading.Thread(target=self.handle_client, args=(client_socket,))
+            client_handler.start()
+
+    def handle_client(self, client_socket):
+        try:
+            request = self.protocol.receive(client_socket)
+            if request:
+                response = self.protocol.process_request(request, self.peers)
+                self.protocol.send(client_socket, response)
+                logging.info(f"Processed request: {request} with response: {response}")
+        except Exception as e:
+            logging.error(f"Error handling client: {e}")
+        finally:
+            client_socket.close()
 
 if __name__ == "__main__":
-    start_tracker()
+    tracker = Tracker()
+    tracker.start()

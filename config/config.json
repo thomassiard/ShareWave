@@ -1,0 +1,23 @@
+{
+    "tracker_ip": "127.0.0.1",
+    "tracker_port": 8888,
+    "default_chunk_size": 1024,
+    "logging_level": "DEBUG",
+    "log_file_path": "logs/tracker.log",
+    "connection_timeout": 10,
+    "max_retries": 3,
+    "download_path": "src/output/",
+    "temp_storage_path": "src/temp/",
+    "peers": [
+        {
+            "peer_id": "peer1",
+            "ip": "127.0.0.1",
+            "port": 8881
+        },
+        {
+            "peer_id": "peer2",
+            "ip": "127.0.0.1",
+            "port": 8882
+        }
+    ]
+}

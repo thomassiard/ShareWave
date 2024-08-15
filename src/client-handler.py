@@ -1,13 +1,12 @@
-# src/client_handler.py
-
 import socket
 import sys
 import json
 import logging
+import os
 from protocol import Protocol
 
-# Postavite osnovne postavke za logiranje
-logging.basicConfig(filename='src/logs/client_handler.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# Postavite konfiguraciju logiranja iz logging.conf
+logging.config.fileConfig('config/logging.conf')
 
 class ClientHandler:
     def __init__(self, src_ip, src_port, tracker_ip, tracker_port):
@@ -19,6 +18,25 @@ class ClientHandler:
 
         # Povezivanje s trackerom
         self.server_address = (self.tracker_ip, self.tracker_port)
+
+        # Učitaj konfiguraciju iz config.json
+        self.load_config()
+
+    def load_config(self, config_file='config/config.json'):
+        try:
+            with open(config_file, 'r') as file:
+                config = json.load(file)
+                self.tracker_ip = config.get("tracker_ip", self.tracker_ip)
+                self.tracker_port = config.get("tracker_port", self.tracker_port)
+                self.chunk_size = config.get("default_chunk_size", 1024)
+        except FileNotFoundError:
+            logging.error("Config file not found.")
+            print("Config file not found. Please check your setup.")
+            sys.exit(1)
+        except json.JSONDecodeError:
+            logging.error("Error decoding config file.")
+            print("Error decoding config file. Please check the file format.")
+            sys.exit(1)
 
     def run(self):
         while True:
@@ -48,13 +66,19 @@ class ClientHandler:
         print("[5] Exit")
 
     def send_request(self, request):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect(self.server_address)
-            logging.info(f"Sending request: {request}")
-            sock.sendall(json.dumps(request).encode())
-            response = sock.recv(4096).decode()
-            logging.info(f"Received response: {response}")
-            return json.loads(response)
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(10)  # 10 seconds timeout
+                sock.connect(self.server_address)
+                logging.info(f"Sending request: {request}")
+                sock.sendall(json.dumps(request).encode())
+                response = sock.recv(4096).decode()
+                logging.info(f"Received response: {response}")
+                return json.loads(response)
+        except (socket.timeout, socket.error, json.JSONDecodeError) as e:
+            logging.error(f"Failed to send request or decode response: {e}")
+            print("An error occurred while communicating with the tracker. Please try again later.")
+            return {"RET": -1}
 
     def get_torrent_list(self):
         request = {"OPC": 10, "IP_ADDRESS": self.src_ip, "PORT": self.src_port}
@@ -75,8 +99,14 @@ class ClientHandler:
 
     def upload_file(self):
         filename = input("Please enter the filename.ext: ").strip()
+        file_path = f'src/input/{filename}'
+
+        if not os.path.exists(file_path):
+            print(f"File {filename} does not exist in the input folder.")
+            return
+
         try:
-            with open(f'src/input/{filename}', 'rb') as file:
+            with open(file_path, 'rb') as file:
                 file_data = file.read()
                 num_of_pieces = (len(file_data) + 1023) // 1024  # Example logic for splitting into pieces
                 request = {
@@ -93,6 +123,9 @@ class ClientHandler:
                     print("Failed to upload file.")
         except FileNotFoundError:
             print("File not found.")
+        except OSError as e:
+            logging.error(f"Error accessing file: {e}")
+            print("An error occurred while accessing the file.")
 
     def show_help(self):
         print("Help: Use the menu options to interact with the ShareWave client.")
