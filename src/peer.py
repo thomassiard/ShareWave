@@ -38,18 +38,72 @@ class Peer:
     def listen_for_requests(self, client_socket):
         while self.running:
             try:
-                data = self.protocol.receive(client_socket)
+                data = self.protocol.receive(client_socket)  # Primanje podataka
                 if data:
-                    logging.info("f'Received data: {data}")
-                    # Ovdje dodaj logiku za obradu primljenih podataka
-                    # self.handle_data(data)
+                    logging.info(f"Received data: {data}")  # Zapisivanje primljenih podataka u log
+                    self.handle_data(client_socket, data)  # Obrada primljenih podataka
             except Exception as e:
                 logging.error(f"Error receiving data: {e}")
                 self.running = False  # Zaustavi peer u slučaju greške
 
-    def handle_data(self, data):
-        # Obradi podatke ovdje, npr. preuzimanje ili slanje dijelova datoteke
-        pass
+    def handle_data(self, client_socket, data):
+
+        try:
+            message_type = data.get('type')
+            
+            if message_type == 'request_piece':
+                piece_index = data.get('piece_index')
+                logging.info(f"Request for piece {piece_index} received.")
+                self.send_piece(client_socket, piece_index)
+            
+            elif message_type == 'send_piece':
+                piece_index = data.get('piece_index')
+                piece_data = data.get('piece_data')
+                logging.info(f"Piece {piece_index} received.")
+                self.save_piece(piece_index, piece_data)
+            
+            elif message_type == 'update_status':
+                new_status = data.get('status')
+                logging.info(f"Status update received: {new_status}")
+                # Implementiraj ažuriranje statusa peer-a ovdje
+
+            else:
+                logging.warning(f"Unknown message type received: {message_type}")
+
+        except Exception as e:
+            logging.error(f"Error handling data: {e}")
+
+    def send_piece(self, client_socket, piece_index):
+
+        try:
+            piece_data = self.get_piece_data(piece_index) 
+            response = {
+                'type': 'send_piece',
+                'piece_index': piece_index,
+                'piece_data': piece_data
+            }
+            self.protocol.send(client_socket, response)
+            logging.info(f"Sent piece {piece_index} to client.")
+        except Exception as e:
+            logging.error(f"Error sending piece {piece_index}: {e}")
+
+    def save_piece(self, piece_index, piece_data):
+
+        try:
+            with open(f'src/output/piece_{piece_index}.part', 'wb') as f:
+                f.write(piece_data)
+            logging.info(f"Saved piece {piece_index}.")
+        except Exception as e:
+            logging.error(f"Error saving piece {piece_index}: {e}")
+
+    def get_piece_data(self, piece_index):
+
+        try:
+            with open(f'src/output/piece_{piece_index}.part', 'rb') as f:
+                return f.read()
+        except Exception as e:
+            logging.error(f"Error retrieving piece {piece_index}: {e}")
+            return None
 
     def stop(self):
         logging.info("Stopping peer...")

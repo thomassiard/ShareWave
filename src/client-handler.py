@@ -5,7 +5,7 @@ import logging
 import os
 from protocol import Protocol
 
-# Postavite konfiguraciju logiranja iz logging.conf
+# Postavljanje konfiguracije logiranja iz logging.conf
 logging.config.fileConfig('config/logging.conf')
 
 class ClientHandler:
@@ -41,7 +41,7 @@ class ClientHandler:
     def run(self):
         while True:
             self.show_menu()
-            choice = input("[p2py client]: ").strip()
+            choice = input("[sharewave client]: ").strip()
 
             if choice == '1':
                 self.get_torrent_list()
