@@ -18,7 +18,10 @@ class Tracker:
         server.bind((self.host, self.port))
         server.listen(5)
         logging.info(f"Tracker is running on {self.host}:{self.port}")
-
+        
+        # Notifikacija u konzoli kada se tracker uspješno pokrene
+        print(f"Tracker successfully running on {self.host}:{self.port}")
+        
         while True:
             client_socket, addr = server.accept()
             logging.info(f"Accepted connection from {addr}")
@@ -30,6 +33,8 @@ class Tracker:
             request = self.protocol.receive(client_socket)
             if request:
                 response = self.protocol.process_request(request, self.peers)
+                # Dodajemo stanje trackera (npr. "seeding" ili "peering") kao dio odgovora
+                response['status'] = 'seeding' if 'SEED' in request else 'peering'
                 self.protocol.send(client_socket, response)
                 logging.info(f"Processed request: {request} with response: {response}")
         except Exception as e:

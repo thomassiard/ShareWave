@@ -2,6 +2,7 @@ import socket
 import sys
 import json
 import logging
+import logging.config
 import os
 from protocol import Protocol
 
@@ -9,15 +10,13 @@ from protocol import Protocol
 logging.config.fileConfig('config/logging.conf')
 
 class ClientHandler:
-    def __init__(self, src_ip, src_port, tracker_ip, tracker_port):
+    def __init__(self, src_ip, src_port, tracker_ip, tracker_port, client_name="client"):
         self.src_ip = src_ip
         self.src_port = int(src_port)
         self.tracker_ip = tracker_ip
         self.tracker_port = int(tracker_port)
         self.protocol = Protocol()
-
-        # Povezivanje s trackerom
-        self.server_address = (self.tracker_ip, self.tracker_port)
+        self.client_name = client_name
 
         # Učitaj konfiguraciju iz config.json
         self.load_config()
@@ -41,7 +40,7 @@ class ClientHandler:
     def run(self):
         while True:
             self.show_menu()
-            choice = input("[sharewave client]: ").strip()
+            choice = input(f"[{self.client_name} client]: ").strip()
 
             if choice == '1':
                 self.get_torrent_list()
@@ -136,14 +135,15 @@ class ClientHandler:
         print("5) Exit: Exits the client application.")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Usage: python3 src/client_handler.py [src_ip] [src_port] [tracker_ip] [tracker_port]")
+    if len(sys.argv) != 6:
+        print("Usage: python3 src/client_handler.py [src_ip] [src_port] [tracker_ip] [tracker_port] [client_name]")
         sys.exit(1)
 
     src_ip = sys.argv[1]
     src_port = sys.argv[2]
     tracker_ip = sys.argv[3]
     tracker_port = sys.argv[4]
+    client_name = sys.argv[5]
 
-    client = ClientHandler(src_ip, src_port, tracker_ip, tracker_port)
+    client = ClientHandler(src_ip, src_port, tracker_ip, tracker_port, client_name)
     client.run()
