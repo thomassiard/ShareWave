@@ -2,7 +2,7 @@ import os
 import hashlib
 
 def split_file(filepath, chunk_size=1024):
-    """Splits a file into multiple parts based on the chunk size."""
+
     parts = []
     with open(filepath, 'rb') as file:
         chunk = file.read(chunk_size)
@@ -17,7 +17,7 @@ def split_file(filepath, chunk_size=1024):
     return parts
 
 def combine_files(parts, output_path):
-    """Combines multiple parts into a single file."""
+
     with open(output_path, 'wb') as output_file:
         for part in parts:
             with open(part, 'rb') as file:
@@ -25,19 +25,19 @@ def combine_files(parts, output_path):
     return output_path
 
 def get_file_parts(filepath):
-    """Returns a list of all file parts based on the original filename."""
+
     directory, filename = os.path.split(filepath)
     parts = [os.path.join(directory, f) for f in os.listdir(directory) if f.startswith(filename) and '_part' in f]
     parts.sort()  # Ensure parts are in correct order
     return parts
 
 def delete_file_parts(parts):
-    """Deletes all file parts after combining."""
+
     for part in parts:
         os.remove(part)
 
 def calculate_file_hash(filepath):
-    """Calculates the SHA-256 hash of a file for integrity checks."""
+
     sha256_hash = hashlib.sha256()
     with open(filepath, 'rb') as file:
         for byte_block in iter(lambda: file.read(4096), b""):
