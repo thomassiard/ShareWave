@@ -1,18 +1,37 @@
+# Direktoriji za virtualne okoline
 venv/
 .venv/
+
+# Keširanje bytecode-a za Python
 __pycache__/
 *.pyc
 *.pyo
+
+# Log fajlovi
 *.log
+
+# Metapodaci Finder-a za macOS
 .DS_Store
+
+# Fajlovi za varijable okruženja
 .env
 .env.*
+
+# Postavke IDE-a i editora
 .vscode/
 .idea/
+
+# Izvještaji o pokrivenosti koda
 .coverage
 htmlcov/
+
+# Direktoriji za izgradnju i distribuciju
 build/
 dist/
 *.egg-info/
+
+# Tox okruženje za testiranje
 .tox/
+
+# Pip log fajl
 pip-log.txt

@@ -1,17 +1,20 @@
+# Automatsko upravljanje linijskim završecima za tekstualne fajlove
 * text=auto
 
-*.png binary
-*.jpg binary
-*.mp3 binary
-*.mp4 binary
-*.pdf binary
-*.doc binary
-*.exe binary
-*.zip binary
-*.tar.gz binary
-*.rar binary
+# Tretirajte ove vrste fajlova kao binarne (ne obavljajte normalizaciju linijskih završetaka ili spajanje)
+*.png binary  # Slike u PNG formatu
+*.jpg binary  # Slike u JPG formatu
+*.mp3 binary  # Audio fajlovi u MP3 formatu
+*.mp4 binary  # Video fajlovi u MP4 formatu
+*.pdf binary  # PDF dokumenti
+*.doc binary  # Microsoft Word dokumenti
+*.exe binary  # Izvršni fajlovi
+*.zip binary  # ZIP arhive
+*.tar.gz binary  # TAR.GZ arhive
+*.rar binary  # RAR arhive
 
-*.md text
-*.json text
-*.xml text
-*.yml text
+# Tretirajte ove vrste fajlova kao tekstualne (izvršite normalizaciju linijskih završetaka i spajanje)
+*.md text  # Markdown fajlovi
+*.json text  # JSON fajlovi
+*.xml text  # XML fajlovi
+*.yml text  # YAML fajlovi

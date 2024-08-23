@@ -1,24 +1,71 @@
+# Okvir za testiranje
 pytest==6.2.4
+
+# HTTP zahtjevi
 requests==2.25.1
+
+# Atomsko pisanje za pytest
 atomicwrites==1.4.1
+
+# Upravljanje atributima
 attrs==24.2.0
+
+# Sertifikati za HTTPS
 certifi==2024.7.4
+
+# Otkrivanje enkodiranja karaktera
 chardet==4.0.0
+
+# Bojanje u terminalu
 colorama==0.4.6
+
+# Parsiranje argumenata komandne linije
 docopt==0.6.2
+
+# Internacionalizirani domeni
 idna==2.10
+
+# Parsiranje konfiguracija
 iniconfig==2.0.0
+
+# Alati za pakiranje
 packaging==24.1
+
+# Upravljanje dodacima (plug-in)
 pluggy==0.13.1
+
+# Python alati
 py==1.11.0
+
+# Alati za evaluaciju
 pure-eval==0.2.3
+
+# Ekstenzije specifične za Windows
 pywin32==306
+
+# Python bindingi za ZeroMQ
 pyzmq==26.1.1
+
+# Kompatibilnost između Python 2 i 3
 six==1.16.0
+
+# Alati za rad s podacima o steku
 stack-data==0.6.3
+
+# Parsiranje TOML formata
 toml==0.10.2
+
+# Tornado web okvir
 tornado==6.4.1
+
+# Konfiguracija i upravljanje IPython-om
 traitlets==5.14.3
+
+# HTTP biblioteka za Python
 urllib3==1.26.19
+
+# HTML enkodiranje
 webencodings==0.5.1
+
+# Parsiranje argumenata komandne linije
 yarg==0.1.9
