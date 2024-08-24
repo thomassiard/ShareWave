@@ -1,7 +1,7 @@
 # Automatsko upravljanje linijskim završecima za tekstualne fajlove
 * text=auto
 
-# Tretirajte ove vrste fajlova kao binarne (ne obavljajte normalizaciju linijskih završetaka ili spajanje)
+# Tretiramo ove vrste fajlova kao binarne
 *.png binary  # Slike u PNG formatu
 *.jpg binary  # Slike u JPG formatu
 *.mp3 binary  # Audio fajlovi u MP3 formatu
@@ -13,7 +13,7 @@
 *.tar.gz binary  # TAR.GZ arhive
 *.rar binary  # RAR arhive
 
-# Tretirajte ove vrste fajlova kao tekstualne (izvršite normalizaciju linijskih završetaka i spajanje)
+# Tretiramo ove vrste fajlova kao tekstualne
 *.md text  # Markdown fajlovi
 *.json text  # JSON fajlovi
 *.xml text  # XML fajlovi

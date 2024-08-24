@@ -1,17 +1,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    # Ime paketa
     name="ShareWave",
-    
-    # Verzija paketa
     version="0.1",
-    
-    # Pronađi pakete u 'src' direktorijumu
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    
-    # Spisak zavisnosti koje će biti instalirane
     install_requires=[
         'atomicwrites==1.4.1',  # Biblioteka za pisanje u atomskom režimu, često korišćena u testiranju
         'attrs==24.2.0',        # Količinska knjižnica za rad sa atributima objekata
@@ -37,15 +30,12 @@ setup(
         'webencodings==0.5.1',  # Encoding za rad sa web fontovima i karakterima
         'yarg==0.1.9',          # Alat za parsiranje komandnih linija
     ],
-    
-    # Definiše komandne skripte koje će biti dostupne u CLI
+    # Definirane komandne skripte koje će biti dostupne u CLI
     entry_points={
         "console_scripts": [
-            "sharewave-tracker=tracker:main",  # Komanda 'sharewave-tracker' pokreće funkciju 'main' iz 'tracker' modula
-            "sharewave-client=client_handler:main",  # Komanda 'sharewave-client' pokreće funkciju 'main' iz 'client_handler' modula
+            "sharewave-tracker=tracker:main",
+            "sharewave-client=client_handler:main",  
         ],
     },
-    
-    # Verzija Pythona koja je potrebna za ovaj paket
     python_requires='>=3.6',
 )

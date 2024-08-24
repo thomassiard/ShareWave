@@ -5,14 +5,9 @@ import logging
 import argparse
 from protocol import Protocol
 
-# Definišite putanju do direktorijuma sa logovima
-# Koristite apsolutnu putanju ako je moguće da biste izbegli greške sa relativnim putanjama
 base_dir = os.path.dirname(os.path.abspath(__file__))  # Ovo daje apsolutnu putanju do trenutnog direktorijuma
 log_dir = os.path.join(base_dir, 'logs')
 log_file = os.path.join(log_dir, 'tracker.log')
-
-# Kreirajte direktorijume ako ne postoje
-os.makedirs(log_dir, exist_ok=True)  # Kreira direktorijum ako ne postoji
 
 # Postavljanje osnovnih postavki za logiranje
 logging.basicConfig(filename=log_file,
@@ -31,8 +26,10 @@ class Tracker:
         server.bind((self.host, self.port))
         server.listen(5)
         
-        # Prikazivanje poruke u željenom formatu
+        print("----------------------------------------------------------")
         print(f"[TRACKER] Serving on ({self.host}, {self.port})")
+        print("----------------------------------------------------------")
+        
         logging.info(f"Tracker is running on {self.host}:{self.port}")
         
         try:
@@ -53,7 +50,7 @@ class Tracker:
             request = self.protocol.receive(client_socket)
             if request:
                 response = self.protocol.process_request(request, self.peers)
-                # Dodajemo stanje trackera (npr. "seeding" ili "peering") kao deo odgovora
+                # Dodajemo stanje trackera (npr. "seeding" ili "peering") kao dio odgovora
                 response['status'] = 'seeding' if 'SEED' in request else 'peering'
                 self.protocol.send(client_socket, response)
                 logging.info(f"Processed request: {request} with response: {response}")

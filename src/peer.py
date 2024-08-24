@@ -1,7 +1,8 @@
+import os
 import socket
-from protocol import Protocol
 import logging
 import threading
+from protocol import Protocol
 
 class Peer:
     def __init__(self, ip, port, tracker_ip, tracker_port):
@@ -11,19 +12,27 @@ class Peer:
         self.tracker_port = tracker_port
         self.protocol = Protocol()
         self.setup_logging()
-        self.running = True  # Kontrola rada peer-a
+        self.running = True
 
     def setup_logging(self):
-        log_filename = f'src/logs/client_{self.port}.log'
+        # Definirajte putanju do direktorija za logove
+        log_dir = 'src/logs'
+        os.makedirs(log_dir, exist_ok=True)
+        log_filename = os.path.join(log_dir, 'peer.log')
+        
+        # Postavite osnovne postavke za logiranje
         logging.basicConfig(filename=log_filename, level=logging.DEBUG, 
-                            format='%(asctime)s %(message)s')
+                            format='%(asctime)s - %(levelname)s - %(message)s')
         logging.info('Peer initialized')
 
     def start(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             client_socket.bind((self.ip, self.port))
+            client_socket.listen(1)  # Listen for incoming connections
             self.connect_to_tracker(client_socket)
-            threading.Thread(target=self.listen_for_requests, args=(client_socket,)).start()
+            listener_thread = threading.Thread(target=self.listen_for_requests, args=(client_socket,))
+            listener_thread.start()
+            listener_thread.join()  # Ensure the thread completes
 
     def connect_to_tracker(self, client_socket):
         try:
@@ -38,16 +47,15 @@ class Peer:
     def listen_for_requests(self, client_socket):
         while self.running:
             try:
-                data = self.protocol.receive(client_socket)  # Primanje podataka
+                data = self.protocol.receive(client_socket)
                 if data:
-                    logging.info(f"Received data: {data}")  # Zapisivanje primljenih podataka u log
-                    self.handle_data(client_socket, data)  # Obrada primljenih podataka
+                    logging.info(f"Received data: {data}")
+                    self.handle_data(client_socket, data)
             except Exception as e:
                 logging.error(f"Error receiving data: {e}")
-                self.running = False  # Zaustavi peer u slučaju greške
+                self.running = False
 
     def handle_data(self, client_socket, data):
-
         try:
             message_type = data.get('type')
             
@@ -65,7 +73,6 @@ class Peer:
             elif message_type == 'update_status':
                 new_status = data.get('status')
                 logging.info(f"Status update received: {new_status}")
-                # Implementiraj ažuriranje statusa peer-a ovdje
 
             else:
                 logging.warning(f"Unknown message type received: {message_type}")
@@ -74,9 +81,8 @@ class Peer:
             logging.error(f"Error handling data: {e}")
 
     def send_piece(self, client_socket, piece_index):
-
         try:
-            piece_data = self.get_piece_data(piece_index) 
+            piece_data = self.get_piece_data(piece_index)
             response = {
                 'type': 'send_piece',
                 'piece_index': piece_index,
@@ -88,7 +94,6 @@ class Peer:
             logging.error(f"Error sending piece {piece_index}: {e}")
 
     def save_piece(self, piece_index, piece_data):
-
         try:
             with open(f'src/output/piece_{piece_index}.part', 'wb') as f:
                 f.write(piece_data)
@@ -97,7 +102,6 @@ class Peer:
             logging.error(f"Error saving piece {piece_index}: {e}")
 
     def get_piece_data(self, piece_index):
-
         try:
             with open(f'src/output/piece_{piece_index}.part', 'rb') as f:
                 return f.read()

@@ -2,12 +2,22 @@ import socket
 import sys
 import json
 import logging
-import logging.config
 import os
 from protocol import Protocol
 
-# Postavljanje konfiguracije logiranja iz logging.conf
-logging.config.fileConfig('config/logging.conf')
+# Postavljanje osnovnog logger-a za zapisivanje u fajl
+log_dir = 'src/logs'
+log_file = 'client_handler.log'
+log_path = os.path.join(log_dir, log_file)
+
+# Kreirajte log folder ako ne postoji
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+# Konfiguracija osnovnog logovanja
+logging.basicConfig(filename=log_path,
+                    level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ClientHandler:
     def __init__(self, src_ip, src_port, tracker_ip, tracker_port, client_name="client"):
@@ -18,24 +28,8 @@ class ClientHandler:
         self.protocol = Protocol()
         self.client_name = client_name
 
-        # Učitaj konfiguraciju iz config.json
-        self.load_config()
-
-    def load_config(self, config_file='config/config.json'):
-        try:
-            with open(config_file, 'r') as file:
-                config = json.load(file)
-                self.tracker_ip = config.get("tracker_ip", self.tracker_ip)
-                self.tracker_port = config.get("tracker_port", self.tracker_port)
-                self.chunk_size = config.get("default_chunk_size", 1024)
-        except FileNotFoundError:
-            logging.error("Config file not found.")
-            print("Config file not found. Please check your setup.")
-            sys.exit(1)
-        except json.JSONDecodeError:
-            logging.error("Error decoding config file.")
-            print("Error decoding config file. Please check the file format.")
-            sys.exit(1)
+        # Postavljanje osnovnih vrednosti za konfiguraciju
+        self.chunk_size = 1024  # Predefinisana vrednost za chunk_size
 
     def run(self):
         while True:
@@ -68,7 +62,7 @@ class ClientHandler:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(10)  # 10 seconds timeout
-                sock.connect(self.server_address)
+                sock.connect((self.tracker_ip, self.tracker_port))
                 logging.info(f"Sending request: {request}")
                 sock.sendall(json.dumps(request).encode())
                 response = sock.recv(4096).decode()
@@ -83,22 +77,38 @@ class ClientHandler:
         request = {"OPC": 10, "IP_ADDRESS": self.src_ip, "PORT": self.src_port}
         response = self.send_request(request)
         if response.get('RET') == 0:
-            print("Available torrents:", response.get('TORRENTS'))
+            torrents = response.get('TORRENTS', [])
+            for idx, name in enumerate(torrents, start=1):
+                print(f"{idx}. {name}")
         else:
             print("Failed to get torrent list.")
 
     def download_torrent(self):
-        torrent_id = input("Please enter the torrent id: ").strip()
-        request = {"OPC": 11, "IP_ADDRESS": self.src_ip, "PORT": self.src_port, "TORRENT_ID": int(torrent_id)}
-        response = self.send_request(request)
-        if response.get('RET') == 0:
-            print("Downloading torrent...")
-        else:
-            print("Failed to download torrent.")
+        try:
+            torrent_index = int(input("Please enter the torrent number: ").strip()) - 1
+            request = {"OPC": 11, "IP_ADDRESS": self.src_ip, "PORT": self.src_port, "TORRENT_INDEX": torrent_index}
+            response = self.send_request(request)
+            
+            if response.get('RET') == 0:
+                print("Downloading torrent...")
+                file_data = response.get('FILE_DATA')
+                if file_data:
+                    output_path = os.path.join('src', 'output', 'downloaded_file.file')
+                    with open(output_path, 'wb') as file:
+                        file.write(file_data)
+                    print("File downloaded successfully.")
+                else:
+                    print("No file data received.")
+            else:
+                print("Failed to download torrent.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     def upload_file(self):
         filename = input("Please enter the filename.ext: ").strip()
-        file_path = f'src/input/{filename}'
+        file_path = os.path.join('src', 'input', filename)  # Postavljanje ispravne putanje
+
+        print(f"Checking file at: {file_path}")
 
         if not os.path.exists(file_path):
             print(f"File {filename} does not exist in the input folder.")
@@ -107,7 +117,7 @@ class ClientHandler:
         try:
             with open(file_path, 'rb') as file:
                 file_data = file.read()
-                num_of_pieces = (len(file_data) + 1023) // 1024  # Example logic for splitting into pieces
+                num_of_pieces = (len(file_data) + self.chunk_size - 1) // self.chunk_size  # Računanje broja komadića
                 request = {
                     "OPC": 14,
                     "IP_ADDRESS": self.src_ip,
