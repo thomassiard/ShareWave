@@ -1,5 +1,5 @@
-from src.client import *
-from src.Tracker import *
+from src.client import Client
+from src.tracker import TrackerServer  # Importiraj ispravnu klasu
 from src.protocol import *
 
 def test_createServerRequest():
@@ -10,34 +10,35 @@ def test_createServerRequest():
     opc = 11
     tid = 0
     expectedPayload = {
-        OPC:opc,
-        IP:ip,
-        PORT:port,
-        PID:peer_id,
-        TID:tid
+        OPC: opc,   
+        IP: ip,     
+        PORT: port,  
+        PID: peer_id, 
+        TID: tid     
     }
     actualPayload = cli.createServerRequest(opc=opc, torrent_id=tid)
-    assert(actualPayload == expectedPayload )
+    assert(actualPayload == expectedPayload)
 
 def test_handleServerRequest():
-    tracker = TrackerServer()
+    tracker = TrackerServer()  # Kreiraj instancu TrackerServer
     opc = OPT_GET_LIST
     ip = '127.0.0.2'
     port = '8080'
     peer_id = 'test'
     tid = 0
     requestPayload = {
-        OPC:opc,
-        IP:ip,
-        PORT:port,
-        PID:peer_id,
-        TID:tid
+        OPC: opc,
+        IP: ip,
+        PORT: port,
+        PID: peer_id,
+        TID: tid
     }
     expectedPayload = {
         OPC: opc,
         RET: RET_NO_AVAILABLE_TORRENTS
     }
     actualPayload = tracker.handleRequest(requestPayload)
+    assert(actualPayload == expectedPayload)
 
 def test_createPeerRequest():
     ip = '127.0.0.2'
@@ -46,13 +47,13 @@ def test_createPeerRequest():
     opc = OPT_GET_PIECE
     piece_idx = 0
     expectedPayload = {
-        OPC:opc,
-        IP:ip,
-        PORT:port,
+        OPC: opc,
+        IP: ip,
+        PORT: port,
         PIECE_IDX: piece_idx
     }
     actualPayload = cli.createPeerRequest(opc=opc, piece_idx=piece_idx)
-    assert(actualPayload == expectedPayload )
+    assert(actualPayload == expectedPayload)
 
 def test_handlePeerRequest():
     ip = '127.0.0.2'
@@ -60,19 +61,15 @@ def test_handlePeerRequest():
     cli = Client(ip, port)
     opc = OPT_GET_PEERS
     requestPayload = {
-        OPC:opc,
-        IP:ip,
-        PORT:port,
+        OPC: opc,
+        IP: ip,
+        PORT: port,
     }
     expectedResponse = {
-        OPC:opc,
-        IP:ip,
-        PORT:port,
+        OPC: opc,
+        IP: ip,
+        PORT: port,
         PEER_LIST: {},
-        RET: 0
     }
     actualResponse = cli.handlePeerRequest(requestPayload)
     assert(actualResponse == expectedResponse)
-
-
-

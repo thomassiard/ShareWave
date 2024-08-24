@@ -1,5 +1,38 @@
 import json
 import os
+import logging
+
+# Postavljanje osnovnog logger-a za zapisivanje u fajl
+log_dir = 'src/logs'
+log_file = 'protocol.log'
+log_path = os.path.join(log_dir, log_file)
+
+# Kreirajte log folder ako ne postoji
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+# Konfiguracija osnovnog logovanja
+logging.basicConfig(filename=log_path,
+                    level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Definiranje opcija i povratnih kodova
+OPT_GET_LIST = 10
+OPT_GET_PIECE = 11
+OPT_GET_PEERS = 12
+OPT_REGISTER = 14
+
+RET_NO_AVAILABLE_TORRENTS = 1
+
+# Definiranje ključeva za protokol
+OPC = "OPC"
+IP = "IP_ADDRESS"
+PORT = "PORT"
+PID = "PID"
+TID = "TORRENT_ID"
+PIECE_IDX = "PIECE_IDX"
+PEER_LIST = "PEER_LIST"
+RET = "RET"
 
 class Protocol:
     def __init__(self):
@@ -13,7 +46,7 @@ class Protocol:
             message = json.dumps(data).encode()
             conn.sendall(message)
         except Exception as e:
-            print(f"Error sending data: {e}")
+            logging.error(f"Error sending data: {e}")
 
     def receive(self, conn):
         try:
@@ -22,65 +55,65 @@ class Protocol:
                 return None
             return json.loads(data.decode())
         except Exception as e:
-            print(f"Error receiving data: {e}")
+            logging.error(f"Error receiving data: {e}")
             return None
 
     def create_registration_request(self, ip, port):
         return {
-            'OPC': 14,  # Opcionalni kod za registraciju
-            'IP_ADDRESS': ip,
-            'PORT': port
+            OPC: OPT_REGISTER,  # Opcionalni kod za registraciju
+            IP: ip,
+            PORT: port
         }
 
     def create_torrent_list_request(self, ip, port):
         return {
-            'OPC': 10,  # Opcionalni kod za zahtjev liste torrenta
-            'IP_ADDRESS': ip,
-            'PORT': port
+            OPC: OPT_GET_LIST,  # Opcionalni kod za zahtjev liste torrenta
+            IP: ip,
+            PORT: port
         }
 
     def create_download_request(self, ip, port, torrent_id):
         return {
-            'OPC': 11,  # Opcionalni kod za preuzimanje torrenta
-            'IP_ADDRESS': ip,
-            'PORT': port,
-            'TORRENT_ID': torrent_id
+            OPC: OPT_GET_PIECE,  # Opcionalni kod za preuzimanje torrenta
+            IP: ip,
+            PORT: port,
+            TID: torrent_id
         }
 
     def create_upload_request(self, ip, port, filename, num_of_pieces):
         return {
-            'OPC': 14,  # Opcionalni kod za upload file-a
-            'IP_ADDRESS': ip,
-            'PORT': port,
-            'FILE_NAME': filename,
-            'NUM_OF_PIECES': num_of_pieces
+            OPC: OPT_REGISTER,  # Opcionalni kod za upload file-a
+            IP: ip,
+            PORT: port,
+            "FILE_NAME": filename,
+            "NUM_OF_PIECES": num_of_pieces
         }
 
     def process_request(self, request, peers):
-        opc = request.get('OPC')
+        opc = request.get(OPC)
 
-        if opc == 10:  # Zahtjev za listu torrenta
+        if opc == OPT_GET_LIST:  # Zahtjev za listu torrenta
             return self.handle_torrent_list_request(request)
-        elif opc == 11:  # Zahtjev za preuzimanje torrenta
+        elif opc == OPT_GET_PIECE:  # Zahtjev za preuzimanje torrenta
             return self.handle_download_request(request)
-        elif opc == 14:  # Zahtjev za upload file-a
+        elif opc == OPT_REGISTER:  # Zahtjev za upload file-a
             return self.handle_upload_request(request, peers)
         else:
-            return {'RET': -1, 'MSG': 'Invalid request'}
+            return {RET: -1, 'MSG': 'Invalid request'}
 
     def handle_torrent_list_request(self, request):
         # Mock response za listu torrenta
         torrents = ['torrent1', 'torrent2', 'torrent3']
-        return {'RET': 0, 'TORRENTS': torrents}
+        return {RET: 0, 'TORRENTS': torrents}
 
     def handle_download_request(self, request):
-        torrent_id = request.get('TORRENT_ID')
+        torrent_id = request.get(TID)
         # Dohvat podataka o datoteci (samo mock u ovom primjeru)
         file_data = self.get_file_data(torrent_id)
         if file_data:
-            return {'RET': 0, 'FILE_DATA': file_data}
+            return {RET: 0, 'FILE_DATA': file_data}
         else:
-            return {'RET': -1, 'MSG': 'File not found'}
+            return {RET: -1, 'MSG': 'File not found'}
 
     def handle_upload_request(self, request, peers):
         filename = request.get('FILE_NAME')
@@ -89,9 +122,9 @@ class Protocol:
         file_data = self.receive_file_data(request)
         if file_data:
             self.store_file(filename, file_data)
-            return {'RET': 0, 'FILE_NAME': filename, 'NUM_OF_PIECES': num_of_pieces, 'STATUS': 'Uploaded'}
+            return {RET: 0, 'FILE_NAME': filename, 'NUM_OF_PIECES': num_of_pieces, 'STATUS': 'Uploaded'}
         else:
-            return {'RET': -1, 'MSG': 'Upload failed'}
+            return {RET: -1, 'MSG': 'Upload failed'}
 
     def get_file_data(self, torrent_id):
         # Simulacija dohvaćanja podataka datoteke

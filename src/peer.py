@@ -4,6 +4,16 @@ import logging
 import threading
 from protocol import Protocol
 
+# Postavljanje osnovnog logger-a za zapisivanje u fajl
+log_dir = 'src/logs'
+log_file = 'peer.log'
+log_path = os.path.join(log_dir, log_file)
+
+# Konfiguracija osnovnog logovanja
+logging.basicConfig(filename=log_path,
+                    level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 class Peer:
     def __init__(self, ip, port, tracker_ip, tracker_port):
         self.ip = ip
@@ -26,27 +36,30 @@ class Peer:
         logging.info('Peer initialized')
 
     def start(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-            client_socket.bind((self.ip, self.port))
-            client_socket.listen(1)  # Listen for incoming connections
-            self.connect_to_tracker(client_socket)
-            listener_thread = threading.Thread(target=self.listen_for_requests, args=(client_socket,))
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+            server_socket.bind((self.ip, self.port))
+            server_socket.listen(1)  # Listen for incoming connections
+            logging.info(f"Peer listening on {self.ip}:{self.port}")
+            self.connect_to_tracker()
+            listener_thread = threading.Thread(target=self.listen_for_requests, args=(server_socket,))
             listener_thread.start()
             listener_thread.join()  # Ensure the thread completes
 
-    def connect_to_tracker(self, client_socket):
+    def connect_to_tracker(self):
         try:
-            client_socket.connect((self.tracker_ip, self.tracker_port))
-            request = self.protocol.create_registration_request(self.ip, self.port)
-            self.protocol.send(client_socket, request)
-            response = self.protocol.receive(client_socket)
-            logging.info(f'Received from tracker: {response}')
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+                client_socket.connect((self.tracker_ip, self.tracker_port))
+                request = self.protocol.create_registration_request(self.ip, self.port)
+                self.protocol.send(client_socket, request)
+                response = self.protocol.receive(client_socket)
+                logging.info(f'Received from tracker: {response}')
         except Exception as e:
             logging.error(f"Failed to connect to tracker: {e}")
 
-    def listen_for_requests(self, client_socket):
+    def listen_for_requests(self, server_socket):
         while self.running:
             try:
+                client_socket, _ = server_socket.accept()
                 data = self.protocol.receive(client_socket)
                 if data:
                     logging.info(f"Received data: {data}")
@@ -95,7 +108,9 @@ class Peer:
 
     def save_piece(self, piece_index, piece_data):
         try:
-            with open(f'src/output/piece_{piece_index}.part', 'wb') as f:
+            output_dir = 'src/output'
+            os.makedirs(output_dir, exist_ok=True)
+            with open(os.path.join(output_dir, f'piece_{piece_index}.part'), 'wb') as f:
                 f.write(piece_data)
             logging.info(f"Saved piece {piece_index}.")
         except Exception as e:

@@ -1,5 +1,20 @@
 import base64
 import os
+import logging
+
+# Postavljanje osnovnog logger-a za zapisivanje u fajl
+log_dir = 'src/logs'
+log_file = 'file_handler.log'
+log_path = os.path.join(log_dir, log_file)
+
+# Kreirajte log folder ako ne postoji
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+# Konfiguracija osnovnog logovanja
+logging.basicConfig(filename=log_path,
+                    level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 PIECE_SIZE = 64 * 1024  # 64 KB
 ENCODING = 'utf-8'
@@ -16,10 +31,11 @@ def encodeToBytes(file_name: str):
                 hexPiece = encodedPiece.decode(ENCODING)
                 pieces.append(hexPiece)
                 piece = input_file.read(PIECE_SIZE)
+        logging.info(f"Encoded file {file_name} into {numPieces} pieces.")
     except FileNotFoundError:
-        print(f"File not found: {file_name}")
+        logging.error(f"File not found: {file_name}")
     except Exception as e:
-        print(f"Error encoding file {file_name}: {e}")
+        logging.error(f"Error encoding file {file_name}: {e}")
     return pieces, numPieces
 
 def decodeToFile(pieces: list, output_name: str):
@@ -29,15 +45,20 @@ def decodeToFile(pieces: list, output_name: str):
                 encodedBlock = block.encode(ENCODING)
                 decodedBlock = base64.b64decode(encodedBlock)
                 output_file.write(decodedBlock)
+        logging.info(f"Decoded {len(pieces)} pieces to file {output_name}.")
     except Exception as e:
-        print(f"Error decoding to file {output_name}: {e}")
+        logging.error(f"Error decoding to file {output_name}: {e}")
 
 # TESTING:
 if __name__ == "__main__":
-    pieces, numPieces = encodeToBytes("./files/sample.txt")
-    print(f"Number of pieces: {numPieces}")
-    decodeToFile(pieces, "./files/output.txt")
+    # Test encoding and decoding with sample files
+    sample_files = [
+        ("./files/sample.txt", "./files/output.txt"),
+        ("./files/sfu_sample.png", "./files/sfu_output.png")
+    ]
 
-    pieces, numPieces = encodeToBytes("./files/sfu_sample.png")
-    print(f"Number of pieces: {numPieces}")
-    decodeToFile(pieces, "./files/sfu_output.png")
+    for input_file, output_file in sample_files:
+        pieces, num_pieces = encodeToBytes(input_file)
+        print(f"Number of pieces: {num_pieces}")
+        decodeToFile(pieces, output_file)
+        print(f"File {input_file} processed to {output_file}.")
