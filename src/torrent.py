@@ -1,59 +1,39 @@
-from src.protocol import Protocol
+from src.protocol import *
 
 class Torrent:
+    """
+    Class object to represent each torrent stored in the Tracker
+    """
     def __init__(self, tid, filename, numPieces):
         self.tid = tid
         self.filename = filename
-        self.numPieces = numPieces
-        self.seeders = {}  # Pohranjuje seeder-e sa ključem PID i vrijednošću (IP, PORT)
-        self.leechers = {}  # Pohranjuje leecher-e sa ključem PID i vrijednošću (IP, PORT)
+        self.pieces = numPieces
+        self.seeders = dict()
+        self.leechers = dict()
+    
+    def addSeeder(self, pid: str, peer_ip, peer_port):
+        newSeeder = dict()
+        newSeeder[IP] = peer_ip
+        newSeeder[PORT] = peer_port
+        self.seeders[pid] = newSeeder
 
-    def addSeeder(self, pid, peer_ip, peer_port):
-        """Dodaje seeder u listu seedera"""
-        self.seeders[pid] = (peer_ip, peer_port)
-        print(f"Added seeder: {pid} ({peer_ip}:{peer_port})")
+    def removeSeeder(self, pid: str):
+        if pid in self.seeders:
+            del self.seeders[pid]
 
-    def addLeecher(self, pid, peer_ip, peer_port):
-        """Dodaje leecher u listu leechera"""
-        self.leechers[pid] = (peer_ip, peer_port)
-        print(f"Added leecher: {pid} ({peer_ip}:{peer_port})")
+    def addLeecher(self, pid: int, peer_ip, peer_port):
+        newLeecher = dict()
+        newLeecher[IP] = peer_ip
+        newLeecher[PORT] = peer_port
+        self.leechers[pid] = newLeecher
 
-    def getSeeders(self):
-        """Vraća sve seedere"""
+    def removeLeecher(self, pid: str):
+        if pid in self.leechers:
+            del self.leechers[pid]
+    
+    def getSeeders(self) -> dict():
         return self.seeders
 
-    def getLeechers(self):
-        """Vraća sve leechere"""
+    def getLeechers(self) -> dict():
         return self.leechers
-
-    def getTorrentInfo(self):
-        """Vraća informacije o torrentu uključujući seedere i leechere"""
-        return {
-            "tid": self.tid,
-            "filename": self.filename,
-            "numPieces": self.numPieces,
-            "seeders": self.seeders,
-            "leechers": self.leechers
-        }
-
-if __name__ == "__main__":
-    # Primjer korištenja
-    torrent = Torrent(tid=1, filename="example.txt", numPieces=10)
-
-    # Dodavanje seedera
-    torrent.addSeeder(pid="peer1", peer_ip="127.0.0.1", peer_port=8881)
-
-    # Dodavanje leechera
-    torrent.addLeecher(pid="peer2", peer_ip="127.0.0.1", peer_port=8882)
-
-    # Dohvat svih seedera
-    seeders = torrent.getSeeders()
-    print("Seeders:", seeders)
-
-    # Dohvat svih leechera
-    leechers = torrent.getLeechers()
-    print("Leechers:", leechers)
-
-    # Dohvat svih informacija o torrentu
-    torrent_info = torrent.getTorrentInfo()
-    print("Torrent Info:", torrent_info)
+        
