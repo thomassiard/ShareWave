@@ -35,3 +35,13 @@ dist/
 
 # Pip log fajl
 pip-log.txt
+
+# Python packaging
+*.egg
+*.egg-info/
+
+# Backup fajlovi
+*~
+*.swp
+*.swo
+*.swn

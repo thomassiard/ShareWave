@@ -7,10 +7,6 @@ Student: Thomas Siard
 
 ## **Opis**
 
-ShareWave je platforma za dijeljenje datoteka koja omogućava brz i siguran pristup uploadu, pretraživanju i preuzimanju datoteka. Temelji se na distribuiranoj arhitekturi koja čini podatke dostupnima na različitim točkama mreže, pružajući visoku skalabilnost i otpornost na kvarove.
+ShareWave je distribuirani sustav za dijeljenje datoteka razvijen u Pythonu koji koristi peer-to-peer mrežu za upravljanje torrent datotekama. Temelji se na distribuiranoj arhitekturi koja omogućava visoku skalabilnost i pouzdanost, pružajući korisnicima brz i siguran upload, pretraživanje i preuzimanje datoteka. Platforma uključuje ključne komponente kao što su tracker server za praćenje seeder-a i leechera, file handler za upravljanje datotekama, client i client handler za korisničko sučelje i komunikaciju, te definira protokole za interakciju između klijenata i trackera.
 
-Jednostavno korisničko sučelje olakšava upload datoteka, a sigurnosni mehanizmi osiguravaju da samo ovlaštene osobe mogu pristupiti sadržaju. Intuitivno pretraživanje i organizacija metapodataka čine pronalaženje željenog sadržaja jednostavnim.
-
-Ovaj projekt istražuje ključne koncepte raspodijeljenih sustava, poput horizontalnog skaliranja i decentralizirane pohrane podataka. ShareWave pruža praktično rješenje za dijeljenje resursa u radnim skupinama, obrazovnim institucijama ili istraživačkim timovima.
-
-S jednostavnim iskustvom i inovativnim pristupom dijeljenju datoteka, ShareWave čini tehnologiju raspodijeljenih sustava dostupnom svima, pridonoseći efikasnijem i pristupačnijem dijeljenju resursa.
+Projekt omogućava jednostavno upravljanje raznim vrstama datoteka (.txt, .csv, .pdf) kroz intuitivno CLI sučelje. U sklopu projekta postoji testni direktorij za provjeru funkcionalnosti. Glavni cilj je pokrenuti tracker server, otvoriti više terminala za klijente, i omogućiti im upload, download, pregled liste torrenta, pomoć i izlaz iz aplikacije. ShareWave pruža praktično rješenje za dijeljenje resursa u radnim skupinama, obrazovnim institucijama i istraživačkim timovima, omogućavajući učinkovito i pouzdano dijeljenje datoteka.

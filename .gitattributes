@@ -14,7 +14,8 @@
 *.rar binary  # RAR arhive
 
 # Tretiramo ove vrste fajlova kao tekstualne
-*.md text  # Markdown fajlovi
-*.json text  # JSON fajlovi
-*.xml text  # XML fajlovi
-*.yml text  # YAML fajlovi
+*.md text eol=lf  # Markdown fajlovi
+*.json text eol=lf  # JSON fajlovi
+*.xml text eol=lf  # XML fajlovi
+*.yml text eol=lf  # YAML fajlovi
+*.py text eol=lf  # Python skripte
