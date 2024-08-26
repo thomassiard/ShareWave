@@ -29,4 +29,7 @@ python tracker.py 8888
 ```bash
 cd src
 python client_handler.py 127.0.0.1 8881 127.0.0.1 8888
+python client_handler.py 127.0.0.1 8882 127.0.0.1 8888
+python client_handler.py 127.0.0.1 8883 127.0.0.1 8888
+...
 ```
