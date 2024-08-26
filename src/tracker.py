@@ -9,7 +9,7 @@ class TrackerServer:
         self.nextTorrentId = 0  # Sljedeći ID za novi torrent
         self.torrents = {}  # Rječnik za pohranu torrenta sa njihovim jedinstvenim ID-ovima
 
-    def handleRequest(self, req) -> dict: # Obrada dolaznih zahtjeva od klijenata i vraćanje rječnika s odgovorom
+    def handleRequest(self, req) -> dict:  # Obrada dolaznih zahtjeva od klijenata i vraćanje rječnika s odgovorom
 
         opc = req.get(FIELDS['OPC'])  # Dohvaća opciju iz zahtjeva
         response = {FIELDS['OPC']: opc}
@@ -50,8 +50,8 @@ class TrackerServer:
 
         return response
 
-    def getTorrentList(self) -> list: # Dohvaća listu svih torrenta dostupnih na trackeru
- 
+    def getTorrentList(self) -> list:  # Dohvaća listu svih torrenta dostupnih na trackeru
+
         return [
             {
                 FIELDS['TID']: torrent.tid,  # ID torrenta
@@ -63,8 +63,8 @@ class TrackerServer:
             for torrent in self.torrents.values()  # Iterira kroz sve torrente
         ]
 
-    def getTorrentObject(self, req: dict) -> dict: # Dohvaća detalje o specifičnom torrentu prema ID-u
-  
+    def getTorrentObject(self, req: dict) -> dict:  # Dohvaća detalje o specifičnom torrentu prema ID-u
+
         torrent = self.torrents[req[FIELDS['TID']]]  # Dohvaća torrent prema ID-u
         torrentDict = {
             FIELDS['TID']: torrent.tid,  # ID torrenta
@@ -77,8 +77,8 @@ class TrackerServer:
         torrent.addLeecher(req[FIELDS['PID']], req[FIELDS['IP']], req[FIELDS['PORT']])
         return torrentDict
 
-    def updatePeerStatus(self, req: dict) -> int: # Ažurira status peera u listi seeder-a torrenta
-  
+    def updatePeerStatus(self, req: dict) -> int:  # Ažurira status peera u listi seeder-a torrenta
+
         torrent = self.torrents.get(req[FIELDS['TID']])  # Dohvaća torrent prema ID-u
         if torrent:
             torrent.addSeeder(req[FIELDS['PID']], req[FIELDS['IP']], req[FIELDS['PORT']])  # Dodaje peera kao seeder-a
@@ -86,24 +86,24 @@ class TrackerServer:
             return RET_SUCCESS  # Operacija uspješna
         return RET_FAIL  # Operacija neuspješna
 
-    def updateStopSeed(self, req: dict) -> int: # Uklanja peera iz liste seeder-a za određeni torrent
-   
+    def updateStopSeed(self, req: dict) -> int:  # Uklanja peera iz liste seeder-a za određeni torrent
+
         torrent = self.torrents.get(req[FIELDS['TID']])  # Dohvaća torrent prema ID-u
         if torrent:
-            print("[TRACKER] Uklanjanje seeder-a:", req[FIELDS['PID']])  # Ispisuje informaciju o uklanjanju
+            print("[TRACKER] Removing seeder:", req[FIELDS['PID']])  # Ispisuje informaciju o uklanjanju
             torrent.removeSeeder(req[FIELDS['PID']])  # Uklanja peera iz liste seeder-a
             self.checkSeedersList(req[FIELDS['TID']])  # Provjerava listu seeder-a
             return RET_SUCCESS  # Operacija uspješna
         return RET_FAIL  # Operacija neuspješna
 
-    def checkSeedersList(self, tid): # Provjerava listu seeder-a za određeni torrent
- 
+    def checkSeedersList(self, tid):  # Provjerava listu seeder-a za određeni torrent
+
         if not self.torrents[tid].seeders:  # Ako nema seeder-a
             self.torrents.pop(tid)  # Uklanja torrent iz rječnika
             self.nextTorrentId -= 1  # Smanjuje ID za novi torrent
-            print(f"Ažurirana lista torrenta: {self.torrents}")  # Ispisuje ažuriranu listu
+            print(f"[TRACKER] Updated torrent list: {self.torrents}")  # Ispisuje ažuriranu listu
 
-    def addNewFile(self, req: dict) -> tuple: # Dodaje novi torrent na tracker i vraća status i ID torrenta
+    def addNewFile(self, req: dict) -> tuple:  # Dodaje novi torrent na tracker i vraća status i ID torrenta
 
         # Provjerava je li peer već seeder za neki torrent
         if any(req[FIELDS['PID']] in torrent.getSeeders() for torrent in self.torrents.values()):
@@ -115,31 +115,31 @@ class TrackerServer:
         self.nextTorrentId += 1  # Povećava ID za novi torrent
         return RET_SUCCESS, newTorrent.tid  # Vraća status i ID novog torrenta
 
-    async def receiveRequest(self, reader, writer): # Prima zahtjeve od klijenata, obrađuje ih i šalje nazad odgovore
+    async def receiveRequest(self, reader, writer):  # Prima zahtjeve od klijenata, obrađuje ih i šalje nazad odgovore
 
         try:
             data = await reader.read(READ_SIZE)  # Čita podatke od klijenta
             request = json.loads(data.decode())  # Dekodira podatke u rječnik
             addr = writer.get_extra_info('peername')  # Dohvaća informacije o klijentu
 
-            print(f"\n[TRACKER] Primljen zahtjev: {request} od {addr}")  # Ispisuje primljeni zahtjev
+            print(f"\n[TRACKER] Received request: {request} from {addr}")  # Ispisuje primljeni zahtjev
 
             response = self.handleRequest(request)  # Obradjuje zahtjev
             payload = json.dumps(response)  # Kodira odgovor u JSON format
-            print(f"[TRACKER] Slanje odgovora: {payload}")  # Ispisuje odgovor
+            print(f"[TRACKER] Sending response: {payload}")  # Ispisuje odgovor
 
             writer.write(payload.encode())  # Šalje odgovor klijentu
             await writer.drain()  # Čeka da se podaci ispišu
         except Exception as e:
-            print(f"Greška: {e}")  # Ispisuje grešku
-            print(f"[TRACKER] Peer {writer.get_extra_info('peername')} se odspojio.")  # Ispisuje informaciju o disconektu
+            print(f"Error: {e}")  # Ispisuje grešku
+            print(f"[TRACKER] Peer {writer.get_extra_info('peername')} disconnected.")  # Ispisuje informaciju o disconektu
         finally:
             writer.close()  # Zatvara konekciju
 
-def parseCommandLine(): # Parsira argumente komandne linije za dobivanje broja porta
+def parseCommandLine():  # Parsira argumente komandne linije za dobivanje broja porta
 
     if len(sys.argv) != 2:
-        print("Korištenje: tracker.py [port servera]")  # Ispisuje upute za korištenje
+        print("Usage: tracker.py [server port]")  # Ispisuje upute za korištenje
         return 8888  # Zadani port
 
     try:
@@ -147,10 +147,10 @@ def parseCommandLine(): # Parsira argumente komandne linije za dobivanje broja p
         if 0 <= port <= 65535:
             return port  # Vraća port ako je u ispravnom rasponu
         else:
-            print("Port mora biti između 0 i 65535.")  # Ispisuje grešku ako port nije u rasponu
+            print("Port must be between 0 and 65535.")  # Ispisuje grešku ako port nije u rasponu
             return 8888  # Zadani port
     except ValueError:
-        print("Neispravan broj porta.")  # Ispisuje grešku ako port nije cijeli broj
+        print("Invalid port number.")  # Ispisuje grešku ako port nije cijeli broj
         return 8888  # Zadani port
 
 async def main():
@@ -159,7 +159,9 @@ async def main():
     
     server = await asyncio.start_server(TrackerServer().receiveRequest, ip, port)  # Pokreće server
     addr = server.sockets[0].getsockname()  # Dohvaća adresu servera
-    print(f'[TRACKER] Slušanje na {addr}')  # Ispisuje adresu servera
+    addr_str = f"[TRACKER] Listening on {addr}"  # Stvaranje stringa s adresom
+    line_length = len(addr_str)  # Duljina linije prema duljini poruke
+    print(f"{'=' * line_length}\n{addr_str}\n{'=' * line_length}")  # Ispisuje adresu servera sa odgovarajućim okvirom
 
     async with server:
         await server.serve_forever()  # Održava server aktivnim

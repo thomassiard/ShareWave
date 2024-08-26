@@ -10,3 +10,18 @@ Student: Thomas Siard
 ShareWave je distribuirani sustav za dijeljenje datoteka razvijen u Pythonu koji koristi peer-to-peer mrežu za upravljanje torrent datotekama. Temelji se na distribuiranoj arhitekturi koja omogućava visoku skalabilnost i pouzdanost, pružajući korisnicima brz i siguran upload, pretraživanje i preuzimanje datoteka. Platforma uključuje ključne komponente kao što su tracker server za praćenje seeder-a i leechera, file handler za upravljanje datotekama, client i client handler za korisničko sučelje i komunikaciju, te definira protokole za interakciju između klijenata i trackera.
 
 Projekt omogućava jednostavno upravljanje raznim vrstama datoteka (.txt, .csv, .pdf) kroz intuitivno CLI sučelje. U sklopu projekta postoji testni direktorij za provjeru funkcionalnosti. Glavni cilj je pokrenuti tracker server, otvoriti više terminala za klijente, i omogućiti im upload, download, pregled liste torrenta, pomoć i izlaz iz aplikacije. ShareWave pruža praktično rješenje za dijeljenje resursa u radnim skupinama, obrazovnim institucijama i istraživačkim timovima, omogućavajući učinkovito i pouzdano dijeljenje datoteka.
+
+## **Test**
+
+```bash
+pytest -v src/test/run_tests.py
+```
+
+## **Tracker**
+
+```bash
+cd src
+```
+```bash
+python tracker.py 8888
+```
