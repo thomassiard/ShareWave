@@ -1,71 +1,66 @@
-# Okvir za testiranje
-pytest==6.2.4
-
-# HTTP zahtjevi
-requests==2.25.1
-
-# Atomsko pisanje za pytest
+asttokens==2.4.1
 atomicwrites==1.4.1
-
-# Upravljanje atributima
 attrs==24.2.0
-
-# Sertifikati za HTTPS
+backcall==0.2.0
+beautifulsoup4==4.12.3
+bencodepy==0.9.5
+bleach==6.1.0
 certifi==2024.7.4
-
-# Otkrivanje enkodiranja karaktera
 chardet==4.0.0
-
-# Bojanje u terminalu
 colorama==0.4.6
-
-# Parsiranje argumenata komandne linije
+decorator==5.1.1
+defusedxml==0.7.1
 docopt==0.6.2
-
-# Internacionalizirani domeni
+executing==2.0.1
+fastjsonschema==2.20.0
+fd==0.6
+filelock==3.15.4
 idna==2.10
-
-# Parsiranje konfiguracija
 iniconfig==2.0.0
-
-# Alati za pakiranje
+ipython==8.12.3
+jedi==0.19.1
+Jinja2==3.1.4
+jsonschema==4.23.0
+jsonschema-specifications==2023.12.1
+jupyter_client==8.6.2
+jupyter_core==5.7.2
+jupyterlab_pygments==0.3.0
+MarkupSafe==2.1.5
+matplotlib-inline==0.1.7
+mistune==3.0.2
+nbclient==0.10.0
+nbconvert==7.16.4
+nbformat==5.10.4
 packaging==24.1
-
-# Upravljanje dodacima (plug-in)
+pandocfilters==1.5.1
+parso==0.8.4
+pickleDB==0.9.2
+pickleshare==0.7.5
+pipdeptree==2.23.1
+pipreqs==0.5.0
+platformdirs==4.2.2
 pluggy==0.13.1
-
-# Python alati
+prompt_toolkit==3.0.47
+pure_eval==0.2.3
 py==1.11.0
-
-# Alati za evaluaciju
-pure-eval==0.2.3
-
-# Ekstenzije specifične za Windows
+Pygments==2.18.0
+pytest==6.2.4
+python-dateutil==2.9.0.post0
 pywin32==306
-
-# Python bindingi za ZeroMQ
 pyzmq==26.1.1
-
-# Kompatibilnost između Python 2 i 3
+referencing==0.35.1
+requests==2.25.1
+rpds-py==0.20.0
+setuptools==72.2.0
+simplejson==3.19.3
 six==1.16.0
-
-# Alati za rad s podacima o steku
+soupsieve==2.6
 stack-data==0.6.3
-
-# Parsiranje TOML formata
+tinycss2==1.3.0
 toml==0.10.2
-
-# Tornado web okvir
 tornado==6.4.1
-
-# Konfiguracija i upravljanje IPython-om
 traitlets==5.14.3
-
-# HTTP biblioteka za Python
 urllib3==1.26.19
-
-# HTML enkodiranje
+wcwidth==0.2.13
 webencodings==0.5.1
-
-# Parsiranje argumenata komandne linije
 yarg==0.1.9

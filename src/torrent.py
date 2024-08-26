@@ -1,39 +1,56 @@
-from src.protocol import *
+from protocol import FIELDS
 
 class Torrent:
     """
-    Class object to represent each torrent stored in the Tracker
+    Klasa koja predstavlja svaki torrent pohranjen na trackeru.
     """
     def __init__(self, tid, filename, numPieces):
-        self.tid = tid
-        self.filename = filename
-        self.pieces = numPieces
-        self.seeders = dict()
-        self.leechers = dict()
-    
-    def addSeeder(self, pid: str, peer_ip, peer_port):
-        newSeeder = dict()
-        newSeeder[IP] = peer_ip
-        newSeeder[PORT] = peer_port
-        self.seeders[pid] = newSeeder
+        self.tid = tid  # ID torrenta
+        self.filename = filename  # Ime datoteke
+        self.pieces = numPieces  # Broj dijelova datoteke
+        self.seeders = {}  # Rječnik za pohranu seeder-a
+        self.leechers = {}  # Rječnik za pohranu leecher-a
+
+    def addSeeder(self, pid: str, peer_ip: str, peer_port: int):
+        """
+        Dodaje seeder u rječnik seedera.
+        """
+        self.seeders[pid] = {
+            FIELDS['IP']: peer_ip,
+            FIELDS['PORT']: peer_port
+        }
 
     def removeSeeder(self, pid: str):
+        """
+        Uklanja seeder iz rječnika seedera.
+        """
         if pid in self.seeders:
             del self.seeders[pid]
 
-    def addLeecher(self, pid: int, peer_ip, peer_port):
-        newLeecher = dict()
-        newLeecher[IP] = peer_ip
-        newLeecher[PORT] = peer_port
-        self.leechers[pid] = newLeecher
+    def addLeecher(self, pid: str, peer_ip: str, peer_port: int):
+        """
+        Dodaje leecher-a u rječnik leechera.
+        """
+        self.leechers[pid] = {
+            FIELDS['IP']: peer_ip,
+            FIELDS['PORT']: peer_port
+        }
 
     def removeLeecher(self, pid: str):
+        """
+        Uklanja leecher-a iz rječnika leechera.
+        """
         if pid in self.leechers:
             del self.leechers[pid]
-    
-    def getSeeders(self) -> dict():
+
+    def getSeeders(self) -> dict:
+        """
+        Vraća rječnik svih seeder-a.
+        """
         return self.seeders
 
-    def getLeechers(self) -> dict():
+    def getLeechers(self) -> dict:
+        """
+        Vraća rječnik svih leecher-a.
+        """
         return self.leechers
-        

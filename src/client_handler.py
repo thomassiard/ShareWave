@@ -1,64 +1,76 @@
 """
-Handler class for taking in user's inputs.
+Klasa za rukovanje korisničkim unosima i povezivanje s trackerom.
 """
 
-from src.client import *
-from src.protocol import *
+from client import *
+from protocol import RET_FINISHED_SEEDING, RET_FINISHED_DOWNLOAD, RET_SUCCESS, RET_FAIL, RET_ALREADY_SEEDING, RET_NO_AVAILABLE_TORRENTS, RET_TORRENT_DOES_NOT_EXIST
 import asyncio
 import sys
 
 def handleUserChoice():
+    """
+    Rukuje korisničkim izborom putem konzole.
+    
+    :return: Lista s odabranom opcijom, torrent ID-om i imenom datoteke
+    """
     while True:
-        print("\nChoose an option: ")
-        print("[1] Get & display list of torrents")
-        print("[2] Download Torrent")
-        print("[3] Upload a new file")
-        print("[4] Help")
-        print("[5] Exit")
+        print("\nOdaberite opciju: ")
+        print("[1] Prikaži popis torrent-a")
+        print("[2] Preuzmi Torrent")
+        print("[3] Postavi novu datoteku")
+        print("[4] Pomoć")
+        print("[5] Izlaz")
         userInput = input("[p2py client]: ")
-        
+
         try:
             userInput = int(userInput)
-            
-            if userInput in range(0,6):
-                # Get list of torrents
+
+            if userInput in range(1, 6):
                 if userInput == 1:
+                    # Prikaži popis torrent-a
                     return [OPT_GET_LIST, None, None]
 
-                # Get a torrent
                 elif userInput == 2:
-                    torrent_id = int(input("[p2py client] Please enter the torrent id: "))
+                    # Preuzmi torrent
+                    torrent_id = int(input("[p2py client] Unesite ID torrent-a: "))
                     return [OPT_GET_TORRENT, torrent_id, None]
 
-                # Upload a file
                 elif userInput == 3:
-                    filename = str(input("[p2py client] Please enter the filename.ext: "))
+                    # Postavi novu datoteku
+                    filename = str(input("[p2py client] Unesite ime datoteke s ekstenzijom: "))
                     return [OPT_UPLOAD_FILE, None, filename]
-                
+
                 elif userInput == 4:
+                    # Pomoć
                     print("\n///////////////////////////////////////////////////////////////////////////////////////////////////\n")
-                    print("[1] Get & display list of torrents:")
-                    print("\t - this option allows you to get a list of torrents and their associated torrent IDs (TID)\n")
+                    print("[1] Prikaži popis torrent-a:")
+                    print("\t - Ova opcija omogućuje vam da dobijete popis torrent-a i njihove ID-eve (TID)\n")
 
-                    print("[2] Download Torrent:")
-                    print("\t - specify a torrent ID (TID) from the [1] list of torrents option to begin downloading a file\n")
+                    print("[2] Preuzmi Torrent:")
+                    print("\t - Odaberite ID torrent-a (TID) s popisa [1] da biste započeli preuzimanje datoteke\n")
 
-                    print("[3] Upload a new file:")
-                    print("\t - specify a file with format: [filename].[extension] , to add it to the torrent list.")
-                    print("\t - you will begin seeding for this file")
+                    print("[3] Postavi novu datoteku:")
+                    print("\t - Odaberite datoteku u formatu: [ime_datoteke].[ekstenzija], da biste je dodali na popis torrent-a.")
+                    print("\t - Počet ćete dijeliti ovu datoteku")
                     print("\n///////////////////////////////////////////////////////////////////////////////////////////////////\n")
-                    input("Press enter to continue...")
+                    input("Pritisnite enter za nastavak...")
                     return [0, None, None]
-                
-                # Quitting
+
                 elif userInput == 5:
+                    # Izlaz
                     return [-1, None, None]
+
             else:
-                print("Invalid input. Please try again.")
+                print("Nevažeći unos. Molimo pokušajte ponovo.")
         except ValueError:
-            print("Invalid input, only integer values allowed.")
+            print("Nevažeći unos, dopuštene su samo cijele brojeve.")
 
 def parseCommandLine():
+    """
+    Parsira argumente naredbenog retka za IP adrese i portove.
+    
+    :return: Izvorni IP, izvorni port, odredišni IP i odredišni port
+    """
     src_ip = None
     src_port = None
     dest_ip = None
@@ -70,21 +82,20 @@ def parseCommandLine():
         src_port = sys.argv[2]
         dest_ip = sys.argv[3]
         dest_port = sys.argv[4]
-        
+
         try:
             asyncio.streams.socket.inet_aton(src_ip)
             asyncio.streams.socket.inet_aton(dest_ip)
         except asyncio.streams.socket.error:
-            print("Incorrect format for source or tracker IP, please try again.")
+            print("Neispravan format za IP adresu izvora ili trackera, molimo pokušajte ponovo.")
             return None, None, None, None
 
         try:
             if int(src_port) not in range(0, 65536) or int(dest_port) not in range(0, 65536):
-                print("Port range must be [0, 65535], please try again.")
+                print("Raspon portova mora biti [0, 65535], molimo pokušajte ponovo.")
                 return None, None, None, None
-
         except ValueError:
-            print("Incorrect format for source or tracker port given, please try again.")
+            print("Neispravan format za port izvora ili trackera, molimo pokušajte ponovo.")
 
     elif args == 2:
         src_ip = sys.argv[1]
@@ -93,69 +104,71 @@ def parseCommandLine():
         try:
             asyncio.streams.socket.inet_aton(src_ip)
         except asyncio.streams.socket.error:
-            print("Incorrect format for source or tracker IP, please try again.")
+            print("Neispravan format za IP adresu izvora ili trackera, molimo pokušajte ponovo.")
             return None, None, None, None
 
         try:
             if int(src_port) not in range(0, 65536):
-                print("Port range must be [0, 65535], please try again.")
+                print("Raspon portova mora biti [0, 65535], molimo pokušajte ponovo.")
                 return None, None, None, None
-
         except ValueError:
-            print("Incorrect format for source or tracker port given, please try again.")
+            print("Neispravan format za port izvora, molimo pokušajte ponovo.")
         
     else:
-        print("Please double check arguments:")
-        print("client_handler.py [source ip] [source port] [tracker_ip] [tracker_port]")
+        print("Molimo provjerite argumente:")
+        print("client_handler.py [izvorni IP] [izvorni port] [tracker IP] [tracker port]")
 
     return src_ip, src_port, dest_ip, dest_port
 
 async def main():
+    """
+    Glavna funkcija za pokretanje klijenta, povezivanje s trackerom i rukovanje korisničkim unosima.
+    """
     src_ip, src_port, dest_ip, dest_port = parseCommandLine()
-    
-    if src_ip != None and src_port != None:
+
+    if src_ip is not None and src_port is not None:
         cli = Client(src_ip, src_port)
 
-        if dest_ip == None and dest_port == None:
-            # Use default IP and port
+        if dest_ip is None and dest_port is None:
+            # Koristi zadani IP i port ako nisu navedeni
             dest_ip = "127.0.0.1"
             dest_port = "8888"
-        
-        print("Connecting to tracker at " + dest_ip + ":" + dest_port + " ...")
-        print("Connecting as client: " + src_ip + ":" + src_port + " ...")
-        
+
+        print("Povezivanje s trackerom na " + dest_ip + ":" + dest_port + " ...")
+        print("Povezivanje kao klijent: " + src_ip + ":" + src_port + " ...")
+
         while True:
             reader, writer = await cli.connectToTracker(dest_ip, dest_port)
 
             argList = handleUserChoice()
 
             if argList[0] > 0:
+                # Stvaranje zahtjeva za server
                 payload = cli.createServerRequest(opc=argList[0], torrent_id=argList[1], filename=argList[2])
 
-                # NOTE: hacky way to handle invalid file handling (we pass an empty payload)
+                # Provjera valjanosti payload-a
                 if not payload:
                     continue
 
-                # scenario 1: send a message
+                # Slanje poruke serveru
                 await cli.send(writer, payload)
 
-                # scenario 2: receive a message
+                # Primanje odgovora od servera
                 result = await cli.receive(reader)
 
                 if result == RET_FINISHED_DOWNLOAD:
-                    writer.close() # close original session, then start a new one
+                    writer.close()  # Zatvori trenutnu sesiju, zatim pokreni novu
                     reader, writer = await cli.connectToTracker(dest_ip, dest_port)
                     payload = cli.createServerRequest(opc=OPT_START_SEED, torrent_id=argList[1])
                     await cli.send(writer, payload)
                     result = await cli.receive(reader)
                     writer.close()
                     
-                #finished seeding, send server msg to remove status as seeder
-                if result == RET_FINSH_SEEDING:   
-                    writer.close() # close original session, then start a new one
+                if result == RET_FINISHED_SEEDING:
+                    writer.close()  # Zatvori trenutnu sesiju, zatim pokreni novu
                     reader, writer = await cli.connectToTracker(dest_ip, dest_port)
-                    payload = cli.createServerRequest(opc = OPT_STOP_SEED, torrent_id=cli.tid)
-                    await cli.send(writer, payload) #send msg to tracker
+                    payload = cli.createServerRequest(opc=OPT_STOP_SEED, torrent_id=cli.tid)
+                    await cli.send(writer, payload)  # Pošalji poruku trackeru
                     result = await cli.receive(reader)
                     writer.close()
                     break
@@ -163,12 +176,12 @@ async def main():
                 if result != RET_SUCCESS:
                     writer.close()
 
-            # Help
             elif argList[0] == 0:
+                # Pomoć
                 writer.close()
-            
-            # Exit
+
             else:
+                # Izlaz
                 writer.close()
                 sys.exit(0)
 
@@ -178,4 +191,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Exiting the program.")
+        print("Izlaz iz programa.")
