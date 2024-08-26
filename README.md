@@ -21,7 +21,12 @@ pytest -v src/test/run_tests.py
 
 ```bash
 cd src
-```
-```bash
 python tracker.py 8888
+```
+
+## **Client**
+
+```bash
+cd src
+python client_handler.py 127.0.0.1 8881 127.0.0.1 8888
 ```
